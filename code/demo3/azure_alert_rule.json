@@ -1,0 +1,62 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0", 
+    "parameters": {      
+        "location": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        }, 
+        "actionGroupName": {
+            "type": "string"
+        },
+        "appInsightsName": {
+            "type": "string"
+        }
+    },   
+    "variables": {
+        "actionGroupName": "[parameters('actionGroupName')]",
+        "appInsightsName": "[parameters('appInsightsName')]",
+        "alertLocation": "[parameters('location')]",
+        "alertName": "[parameters('name')]"
+    },
+    "resources":[ {
+            "name":"[variables('alertName')]",
+            "type":"Microsoft.Insights/scheduledQueryRules",
+            "apiVersion": "2018-04-16",
+            "location": "[variables('alertLocation')]",
+            "tags": {
+                "[concat('hidden-link:', resourceId('microsoft.insights/components', variables('appInsightsName')))]": "Resource"
+            },
+            "properties": {
+                "description": "A test job in Databricks took more than 100 seconds",
+                "enabled": "true",
+                "source": {
+                    "query": "customMetrics | where name==\"jobDurationSeconds\" and value > 100",
+                    "authorizedResources": [],
+                    "dataSourceId": "[resourceId('microsoft.insights/components', variables('appInsightsName'))]",
+                    "queryType": "ResultCount"
+                },
+                "schedule": {
+                    "frequencyInMinutes": 5,
+                    "timeWindowInMinutes": 5
+                },
+                "action": {
+                    "aznsAction": {
+                        "actionGroup": [
+                            "[resourceId('microsoft.insights/actiongroups', variables('actionGroupName'))]"
+                        ],
+                    "emailSubject": "test - A databricks job took too long"
+                    },
+                    "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
+                    "severity": "3",
+                    "trigger": {
+                        "threshold": 0,
+                        "thresholdOperator": "GreaterThan"
+                    }
+                }
+            }
+        }
+    ]
+}

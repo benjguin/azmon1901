@@ -1,0 +1,37 @@
+{
+    "name": "mon001Job",
+    "new_cluster": {
+        "node_type_id": "Standard_DS3_v2",
+        "enable_elastic_disk": true,
+        "spark_conf": {
+            "spark.databricks.delta.preview.enabled": "true"
+        },
+        "spark_env_vars": {
+            "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+        },
+        "num_workers": 2,
+        "spark_version": "5.1.x-scala2.11"
+    },
+    "libraries": [
+        {
+            "pypi": {
+            "package": "applicationinsights"
+            }
+        }, 
+        {
+            "maven": {
+            "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.11:2.3.8"
+            }
+        }
+    ],
+    "email_notifications": {},
+    "max_concurrent_runs": 5,
+    "notebook_task": {
+        "notebook_path": "/Shared/mon001.py",
+        "base_parameters": {
+            "callerName": "some_caller",
+            "streamRate": "2",
+            "streamDuration": "60"
+        }
+    }
+}
